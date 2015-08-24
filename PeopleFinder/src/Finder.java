@@ -88,16 +88,16 @@ public class Finder extends HttpServlet {
 			}
 
 			else {
-				sql = "select customers.FULLNAME, customers.title, customers.STREETADDRESS, LOCATIONS.city, LOCATIONS.STATES,  customers.ZIPCODE,  customers.EMAILADDRESS, customers.POSITION, COMPANIES.company from customers, COMPANIES, LOCATIONS where (lastname like '"
+				sql = "select customers.FULLNAME, customers.title, customers.STREETADDRESS, LOCATIONS.city, LOCATIONS.STATES,  customers.ZIPCODE,  customers.EMAILADDRESS, customers.POSITION, COMPANIES.company from customers, COMPANIES, LOCATIONS where (lastname like '%"
 						+ lastName
-						+ "%' or COMPANIES.company like '"
+						+ "%' or COMPANIES.company like '%"
 						+ lastName + "%') and (COMPANIES.id = customers.company"
 								+ " and LOCATIONS.id=customers.city)";
-System.out.println(""+sql);
 				// creating PreparedStatement object to execute query
 				preStatement = conn.prepareStatement(sql);
 				result = preStatement.executeQuery();
-				if (result.next()) {
+				if(result.next())
+					{
 					while (result.next()) {
 						peoleFinder += "<tr><td>" + result.getString("FULLNAME")
 								+ "</td><td>" + result.getString("TITLE")
@@ -111,10 +111,42 @@ System.out.println(""+sql);
 								+ "</td></tr>";
 
 					}
-					peoleFinder += "<tbody></table>";
-				} else
-					peoleFinder = "There are no result";
+					
+				} 
+				
+				lastName = lastName.replace(lastName.substring(0, 1), lastName
+						.substring(0, 1).toLowerCase());
+				sql = "select customers.FULLNAME, customers.title, customers.STREETADDRESS, LOCATIONS.city, LOCATIONS.STATES,  customers.ZIPCODE,  customers.EMAILADDRESS, customers.POSITION, COMPANIES.company from customers, COMPANIES, LOCATIONS where (lastname like '%"
+						+ lastName
+						+ "%' or COMPANIES.company like '%"
+						+ lastName + "%') and (COMPANIES.id = customers.company"
+								+ " and LOCATIONS.id=customers.city)";
+				// creating PreparedStatement object to execute query
+				preStatement = conn.prepareStatement(sql);
+				result = preStatement.executeQuery();
+			
+				while (result.next()) {
+					peoleFinder += "<tr><td>" + result.getString("FULLNAME")
+							+ "</td><td>" + result.getString("TITLE")
+							+ "</td><td>" + result.getString("STREETADDRESS")
+							+ "</td><td>" + result.getString("CITY")
+							+ "</td><td>" + result.getString("STATES")
+							+ "</td><td>" + result.getString("ZIPCODE")
+							+ "</td><td>" + result.getString("EMAILADDRESS")
+							+ "</td><td>" + result.getString("POSITION")
+							+ "</td><td>" + result.getString("COMPANY")
+							+ "</td></tr>";
+
+				}
+				
+				 if(peoleFinder.equals("<table class=\"table\"> <thead><tr><th>FULLNAME</th><th>TITLE</th><th>STREETADDRESS</th><th>CITY</th><th>STATE</th><th>ZIPCODE</th><th>EMAILADDRESS</th><th>POSITION</th><th>COMPANY NAME</th></tr> </thead> <tbody>"))
+					{
+						peoleFinder = "There are no result";
+						conn.close();
+						}
+				
 			}
+				peoleFinder += "<tbody></table>";
 			conn.close();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
