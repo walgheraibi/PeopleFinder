@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 public class Finder extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private String peoleFinder = "";
+
 	/**
 	 * @see HttpServlet#HttpServlet()
 	 */
@@ -61,12 +62,12 @@ public class Finder extends HttpServlet {
 			String lastName = request.getParameter("lastName");
 			lastName = lastName.replace(lastName.substring(0, 1), lastName
 					.substring(0, 1).toUpperCase());
-			String sql = "select customers.FULLNAME, customers.title, customers.STREETADDRESS, customers.city, customers.ZIPCODE,  customers.EMAILADDRESS, customers.POSITION, COMPANIES.company from customers, COMPANIES where customers.lastname ='"
-					+ lastName + "' and COMPANIES.id = customers.company";
+			String sql = "select customers.FULLNAME, customers.title, customers.STREETADDRESS, LOCATIONS.city, LOCATIONS.STATES, customers.ZIPCODE,  customers.EMAILADDRESS, customers.POSITION, COMPANIES.company from customers, COMPANIES, LOCATIONS where customers.lastname ='"
+					+ lastName + "' and COMPANIES.id = customers.company and LOCATIONS.id=customers.city";
 			// creating PreparedStatement object to execute query
 			PreparedStatement preStatement = conn.prepareStatement(sql);
 			ResultSet result = preStatement.executeQuery();
-			peoleFinder = "<table class=\"table\"> <thead><tr><th>FULLNAME</th><th>TITLE</th><th>STREETADDRESS</th><th>CITY</th><th>ZIPCODE</th><th>EMAILADDRESS</th><th>POSITION</th><th>COMPANY NAME</th></tr> </thead> <tbody>";
+			peoleFinder = "<table class=\"table\"> <thead><tr><th>FULLNAME</th><th>TITLE</th><th>STREETADDRESS</th><th>CITY</th><th>STATE</th><th>ZIPCODE</th><th>EMAILADDRESS</th><th>POSITION</th><th>COMPANY NAME</th></tr> </thead> <tbody>";
 
 			// System.out.println("<ul class=\"list-group\">");
 			if (result.next()) {
@@ -75,6 +76,7 @@ public class Finder extends HttpServlet {
 							+ "</td><td>" + result.getString("TITLE")
 							+ "</td><td>" + result.getString("STREETADDRESS")
 							+ "</td><td>" + result.getString("CITY")
+							+ "</td><td>" + result.getString("STATES")
 							+ "</td><td>" + result.getString("ZIPCODE")
 							+ "</td><td>" + result.getString("EMAILADDRESS")
 							+ "</td><td>" + result.getString("POSITION")
@@ -86,11 +88,12 @@ public class Finder extends HttpServlet {
 			}
 
 			else {
-				sql = "select customers.FULLNAME, customers.title, customers.STREETADDRESS, customers.city, customers.ZIPCODE,  customers.EMAILADDRESS, customers.POSITION, COMPANIES.company from customers, COMPANIES where (lastname like '"
+				sql = "select customers.FULLNAME, customers.title, customers.STREETADDRESS, LOCATIONS.city, LOCATIONS.STATES,  customers.ZIPCODE,  customers.EMAILADDRESS, customers.POSITION, COMPANIES.company from customers, COMPANIES, LOCATIONS where (lastname like '"
 						+ lastName
 						+ "%' or COMPANIES.company like '"
-						+ lastName + "%') and COMPANIES.id = customers.company";
-
+						+ lastName + "%') and (COMPANIES.id = customers.company"
+								+ " and LOCATIONS.id=customers.city)";
+System.out.println(""+sql);
 				// creating PreparedStatement object to execute query
 				preStatement = conn.prepareStatement(sql);
 				result = preStatement.executeQuery();
@@ -100,6 +103,7 @@ public class Finder extends HttpServlet {
 								+ "</td><td>" + result.getString("TITLE")
 								+ "</td><td>" + result.getString("STREETADDRESS")
 								+ "</td><td>" + result.getString("CITY")
+								+ "</td><td>" + result.getString("STATES")
 								+ "</td><td>" + result.getString("ZIPCODE")
 								+ "</td><td>" + result.getString("EMAILADDRESS")
 								+ "</td><td>" + result.getString("POSITION")
@@ -108,15 +112,14 @@ public class Finder extends HttpServlet {
 
 					}
 					peoleFinder += "<tbody></table>";
-				}
-					else
-						peoleFinder = "There are no result";
+				} else
+					peoleFinder = "There are no result";
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		// Set response content type
 		response.setContentType("text/html");
 
