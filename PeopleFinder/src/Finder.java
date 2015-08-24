@@ -115,11 +115,12 @@ System.out.println(""+sql);
 				} else
 					peoleFinder = "There are no result";
 			}
+			conn.close();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
+		
 		// Set response content type
 		response.setContentType("text/html");
 
